@@ -9,6 +9,7 @@ import customer.Customer;
 public class Process {
 	
 	Scanner in = new Scanner(System.in);
+	Random rand = new Random();
 	
 	String fileName = "queuedata.txt";
 	int totalEntered = 0;
@@ -100,22 +101,47 @@ public class Process {
 		
 		totalEntered++;
 		
-		//TODO: generate random number via custom code
-		Random rand = new Random();
+		//TODO: generate random numbers via custom code
 		
 		Customer customer = new Customer(totalEntered, rand.nextInt(25) + 1, startTime, 0);
 		
-		//TODO: Implement balking
-		// Check if secondary queue is open, and enter which one has less customers queuing
+		// Check if secondary queue is open, and enter which one has less customers queuing.
+		// Also check if each queue has 5 or more people. If so, customer has a 50/50 chance 
+		// of deciding to enter or balk.
 		if (secondary.isOpen() && secondary.size() < primary.size()) {
-			secondary.add(customer);
-			secondaryEntered++;
-			System.out.println("Customer " + totalEntered + " added to secondary queue.");
+			if (secondary.size() >= 5 && primary.size() >= 5) {
+				boolean enters = rand.nextBoolean();
+				if (enters) {
+					secondary.add(customer);
+					secondaryEntered++;
+					System.out.println("Customer " + totalEntered + " added to secondary queue.");		
+				}
+				else {
+					totalEntered--;
+					System.out.println("The queue is too long! The customer decided not to enter.");
+					//TODO: Record balking stats somewhere
+				}
+			}
 		}
 		else {
-			primary.add(customer);
-			primaryEntered++;
-			System.out.println("Customer " + totalEntered + " added to primary queue.");
+			if (primary.size() >= 5) {
+				boolean enters = rand.nextBoolean();
+				if (enters) {
+					primary.add(customer);
+					primaryEntered++;
+					System.out.println("Customer " + totalEntered + " added to primary queue.");
+				}
+				else {
+					totalEntered--;
+					System.out.println("The queue is too long! The customer decided not to enter.");
+					//TODO: Record balking stats somewhere
+				}
+			}
+			else {
+				primary.add(customer);
+				primaryEntered++;
+				System.out.println("Customer " + totalEntered + " added to primary queue.");
+			}
 		}
 	}
 	
