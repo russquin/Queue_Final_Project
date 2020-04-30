@@ -29,6 +29,10 @@ public class Queue<E> implements QueueADT<E> {
 		return values.isEmpty();
 	}
 	
+	public int size() {
+		return values.size();
+	}
+	
 	public void clear() {
 		values.clear();
 	}

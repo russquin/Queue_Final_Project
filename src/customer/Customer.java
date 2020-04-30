@@ -2,19 +2,19 @@ package customer;
 
 public class Customer {
 	
-	private String id;
+	private int id;
 	private int items;
 	private double arriveTime;
 	private double startServeTime;
 	
 	public Customer() {
-		id = "";
+		id = 0;
 		items = 0;
 		arriveTime = 0.0;
 		startServeTime = 0.0;
 	}
 	
-	public Customer(String id, int items, double arriveTime, double startServeTime) {
+	public Customer(int id, int items, double arriveTime, double startServeTime) {
 		super();
 		this.id = id;
 		this.items = items;
@@ -22,11 +22,11 @@ public class Customer {
 		this.startServeTime = startServeTime;
 	}
 	
-	public void setId(String id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 	
-	public String getId() {
+	public int getId() {
 		return id;
 	}
 	

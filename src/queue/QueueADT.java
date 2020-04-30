@@ -12,6 +12,8 @@ public interface QueueADT<E> {
 	E remove();
 
 	boolean isEmpty();
+	
+	int size();
 
 	void clear();
 }
