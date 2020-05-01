@@ -53,4 +53,8 @@ public class Customer {
 	public double getStartServeTime() {
 		return startServeTime;
 	}
+	
+	public String toString() {
+		return "Customer " + id + ", " + items + " items";
+	}
 }
