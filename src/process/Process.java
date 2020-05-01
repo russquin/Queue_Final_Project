@@ -10,6 +10,7 @@ public class Process {
 	
 	Scanner in = new Scanner(System.in);
 	Random rand = new Random();
+	//Rng rand = new Rng();
 	
 	String fileName = "queuedata.txt";
 	int totalEntered = 0;
