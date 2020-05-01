@@ -41,11 +41,11 @@ public class Queue<E> implements QueueADT<E> {
 		String output = "";
 		output = output + "[";
 		if (values.size() == 0) {
-			return "[]";
+			return "[ No customers in queue ]";
 		}
 		output = output + values.get(0);
 		for (int i = 1; i < values.size(); i++) {
-			output = output + "," + values.get(i);
+			output = output + " | " + values.get(i);
 		}
 		return output + "]";
 	}
