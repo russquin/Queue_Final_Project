@@ -1,8 +1,8 @@
 package process;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
-import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -17,6 +17,7 @@ public class Process {
 	Rng rand = new Rng();
 
 	String fileName = "queuedata.txt";
+	DecimalFormat df = new DecimalFormat(".##");
 
 	int totalEntered = 0;
 	int totalServed = 0;
@@ -26,6 +27,9 @@ public class Process {
 	Server<Customer> primary = new Server<>();
 	Server<Customer> secondary = new Server<>(false);
 
+	ArrayList<Customer> primaryHistory = new ArrayList<>();
+	ArrayList<Customer> secondaryHistory = new ArrayList<>();
+
 	public void startServing() {
 
 		startTime = System.currentTimeMillis();
@@ -33,6 +37,9 @@ public class Process {
 		int option = 10;
 
 		while (option != 0) {
+			checkJockey();
+			checkReneg();
+
 			System.out.println("\n--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--\n"
 					+ "Please select an option: \n\n1. Create a Customer \n"
 					+ "2. Process a Customer \n3. Open secondary server \n4. Close secondary "
@@ -88,6 +95,43 @@ public class Process {
 		}
 	}
 
+	// If customer can move from one queue to the other and be in a better position
+	// (i.e. position 4 in primary to position 1/2/3 in secondary) customer will
+	// choose to jockey.
+	private void checkJockey() {
+		if (secondary.isOpen()) {
+			int i = 1;
+			while (i < primary.size()) {
+				if (i > secondary.size()) {
+					Customer customer = primary.removeAtPosition(i);
+					secondary.add(customer);
+					primary.incJockeyed();
+					System.out.println("Customer " + customer.getId() + " jockeyed from primary queue, position "
+							+ (i + 1) + " to secondary queue, position " + secondary.size());
+				} else {
+					i++;
+				}
+			}
+			i = 1;
+			while (i < secondary.size()) {
+				if (i > primary.size()) {
+					Customer customer = secondary.removeAtPosition(i);
+					primary.add(customer);
+					secondary.incJockeyed();
+					System.out.println("Customer " + customer.getId() + " jockeyed from secondary queue, position "
+							+ (i + 1) + " to primary queue, position " + primary.size());
+				} else {
+					i++;
+				}
+			}
+		}
+	}
+
+	//TODO
+	private void checkReneg() {
+
+	}
+
 	private void createCustomer() {
 
 		// TODO: generate random numbers via custom code
@@ -96,14 +140,14 @@ public class Process {
 		int numItems = (int) rand.getPoisson() + 1;
 
 		// Give customer a random number of items(1-15), each with a random time to
-		// process(.5-3.0)
+		// process(.2-2.0 seconds)
 		for (int i = 0; i < numItems; i++) {
 			Item item = new Item(i + 1, 0);
-			item.setProcessTime(.5 + (3.0 - .5) * randBool.nextDouble());
+			item.setProcessTime(.2 + (2.0 - .2) * randBool.nextDouble());
 			items.add(item);
 		}
 
-		Customer customer = new Customer(totalEntered, System.currentTimeMillis() - startTime, items);
+		Customer customer = new Customer(totalEntered + 1, (System.currentTimeMillis() - startTime) / 1000.0, items);
 
 		// Check if secondary queue is open, and enter which one has less customers
 		// queuing. Also check if each queue has 5 or more people. If so, customer has a
@@ -192,27 +236,40 @@ public class Process {
 		if (server == 1) {
 			customer = primary.remove();
 			primary.incServed();
+			primaryHistory.add(customer);
 		}
 		// Secondary
 		else if (server == 2) {
 			customer = secondary.remove();
 			secondary.incServed();
+			secondaryHistory.add(customer);
 		}
-		customer.setStartServeTime(System.currentTimeMillis() - startTime);
-		customer.setWaitTime(customer.getArriveTime() - customer.getStartServeTime());
+
+		System.out.println(
+				"Processing customer " + customer.getId() + " with " + customer.getItems().size() + " items...\n");
+
+		customer.setStartServeTime((System.currentTimeMillis() - startTime) / 1000.0);
+		customer.setWaitTime(customer.getStartServeTime() - customer.getArriveTime());
 		customer.getItems().forEach(item -> {
 			try {
-				System.out.println("Processing item " + item.getId() + ", " + item.getProcessTime() + " seconds.");
-				
+				System.out.println(
+						"Processing item " + item.getId() + ", " + df.format(item.getProcessTime()) + " seconds.");
+
 				// Simulates "processing" each item for its process time
 				TimeUnit.MILLISECONDS.sleep((long) (item.getProcessTime() * 1000));
 			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();;
+				Thread.currentThread().interrupt();
 			}
 		});
-		
+
+		// TODO: Fix timing bug
+		// customer.setServeTime(System.currentTimeMillis() -
+		// customer.getStartServeTime());
+
 		totalServed++;
-		System.out.println("Customer " + customer.getId() + " served.");
+		System.out.println(
+				"\nCustomer " + customer.getId() + " served. \nTotal wait time: " + df.format(customer.getWaitTime())
+						+ " seconds. " + "\nTotal serve time: " + df.format(customer.getServeTime()) + " seconds.");
 	}
 
 	private void calculateQHat() {

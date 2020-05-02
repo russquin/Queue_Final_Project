@@ -77,6 +77,6 @@ public class Customer {
 	}
 	
 	public String toString() {
-		return "Customer " + id + ", " + items + " items";
+		return "Customer " + id + ", " + items.size() + " items";
 	}
 }

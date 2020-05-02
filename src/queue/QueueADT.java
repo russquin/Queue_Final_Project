@@ -14,6 +14,11 @@ public interface QueueADT<E> {
 	 * @return the value at the front of the queue, or null if empty
 	 */
 	E peek();
+	
+	/**
+	 * @return the value at the given position
+	 */
+	E get(int position);
 
 	/**
 	 * Remove the value at the front of the queue
@@ -22,6 +27,13 @@ public interface QueueADT<E> {
 	 * @return the removed value
 	 */
 	E remove();
+	
+	/**
+	 * Remove the value at the given position
+	 * 
+	 * @return the removed value
+	 */
+	E removeAtPosition(int position);
 
 	/**
 	 * @return true iff this queue is empty

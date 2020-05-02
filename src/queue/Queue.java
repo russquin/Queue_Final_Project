@@ -20,9 +20,24 @@ public class Queue<E> implements QueueADT<E> {
 		}
 		return values.get(0);
 	}
+	
+	public E get(int position) {
+		if (position >= size()) {
+			return null;
+		}
+		return values.get(position);
+	}
 
 	public E remove() {
 		return values.remove(0);
+	}
+	
+	public E removeAtPosition(int position) {
+		if (values.get(position) != null) {
+			return values.remove(position);
+			
+		}
+		return null;
 	}
 	
 	public boolean isEmpty() {
