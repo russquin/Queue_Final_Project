@@ -3,23 +3,23 @@ package customer;
 public class Customer {
 	
 	private int id;
-	private int items;
 	private double arriveTime;
 	private double startServeTime;
+	private Item[] items;
 	
 	public Customer() {
 		id = 0;
-		items = 0;
 		arriveTime = 0.0;
 		startServeTime = 0.0;
+		items = new Item[15];
 	}
 	
-	public Customer(int id, int items, double arriveTime, double startServeTime) {
+	public Customer(int id, double arriveTime, double startServeTime, Item[] items) {
 		super();
 		this.id = id;
-		this.items = items;
 		this.arriveTime = arriveTime;
 		this.startServeTime = startServeTime;
+		this.items = items;
 	}
 	
 	public void setId(int id) {
@@ -28,14 +28,6 @@ public class Customer {
 	
 	public int getId() {
 		return id;
-	}
-	
-	public void setItems(int items) {
-		this.items = items;
-	}
-	
-	public int getItems() {
-		return items;
 	}
 	
 	public void setArriveTime(double arriveTime) {
@@ -52,6 +44,14 @@ public class Customer {
 	
 	public double getStartServeTime() {
 		return startServeTime;
+	}
+	
+	public void setItems(Item[] items) {
+		this.items = items;
+	}
+	
+	public Item[] getItems() {
+		return items;
 	}
 	
 	public String toString() {

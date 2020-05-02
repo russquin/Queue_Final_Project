@@ -1,10 +1,12 @@
 package process;
 
+import java.text.DecimalFormat;
 import java.util.InputMismatchException;
 import java.util.Random;
 import java.util.Scanner;
 
 import customer.Customer;
+import customer.Item;
 
 public class Process {
 
@@ -86,29 +88,41 @@ public class Process {
 
 	private void createCustomer() {
 
-		totalEntered++;
-
 		// TODO: generate random numbers via custom code
 
-		Customer customer = new Customer(totalEntered, (int) rand.getPoisson() + 1, startTime, 0);
+		Item[] items = new Item[15];
+		int numItems = (int) rand.getPoisson() + 1;
+
+		// Give customer a random number of items(1-15), each with a random time to
+		// process(.5-3.0)
+		for (int i = 0; i < numItems; i++) {
+			Item item = new Item(i + 1, 0);
+			item.setProcessTime(.5 + (3.0 - .5) * randBool.nextDouble());
+			items[i] = item;
+		}
+		
+		Customer customer = new Customer(totalEntered, startTime, 0, items);
 
 		// Check if secondary queue is open, and enter which one has less customers
-		// queuing.
-		// Also check if each queue has 5 or more people. If so, customer has a 50/50
-		// chance
-		// of deciding to enter or balk.
+		// queuing. Also check if each queue has 5 or more people. If so, customer has a
+		// 50/50 chance of deciding to enter or balk.
 		if (secondary.isOpen() && secondary.size() < primary.size()) {
 			if (secondary.size() >= 5 && primary.size() >= 5) {
 				boolean enters = randBool.nextBoolean();
 				if (enters) {
 					secondary.add(customer);
 					secondary.incEntered();
+					totalEntered++;
 					System.out.println("Customer " + totalEntered + " added to secondary queue.");
 				} else {
-					totalEntered--;
 					System.out.println("The queue is too long! The customer decided not to enter.");
 					secondary.incBalked();
 				}
+			} else {
+				secondary.add(customer);
+				secondary.incEntered();
+				totalEntered++;
+				System.out.println("Customer " + totalEntered + " added to secondary queue.");
 			}
 		} else {
 			if (primary.size() >= 5) {
@@ -116,15 +130,16 @@ public class Process {
 				if (enters) {
 					primary.add(customer);
 					primary.incEntered();
+					totalEntered++;
 					System.out.println("Customer " + totalEntered + " added to primary queue.");
 				} else {
-					totalEntered--;
 					System.out.println("The queue is too long! The customer decided not to enter.");
 					primary.incBalked();
 				}
 			} else {
 				primary.add(customer);
 				primary.incEntered();
+				totalEntered++;
 				System.out.println("Customer " + totalEntered + " added to primary queue.");
 			}
 		}
