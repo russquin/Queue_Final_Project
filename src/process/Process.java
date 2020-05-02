@@ -1,9 +1,11 @@
 package process;
 
-import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 import customer.Customer;
 import customer.Item;
@@ -26,7 +28,7 @@ public class Process {
 
 	public void startServing() {
 
-		startTime = System.nanoTime();
+		startTime = System.currentTimeMillis();
 
 		int option = 10;
 
@@ -43,7 +45,7 @@ public class Process {
 				if (option == 1) {
 					createCustomer();
 				} else if (option == 2) {
-					processCustomer();
+					determineCustomer();
 				} else if (option == 3) {
 					if (secondary.isOpen()) {
 						System.out.println("Secondary server is already open.");
@@ -90,7 +92,7 @@ public class Process {
 
 		// TODO: generate random numbers via custom code
 
-		Item[] items = new Item[15];
+		ArrayList<Item> items = new ArrayList<>();
 		int numItems = (int) rand.getPoisson() + 1;
 
 		// Give customer a random number of items(1-15), each with a random time to
@@ -98,10 +100,10 @@ public class Process {
 		for (int i = 0; i < numItems; i++) {
 			Item item = new Item(i + 1, 0);
 			item.setProcessTime(.5 + (3.0 - .5) * randBool.nextDouble());
-			items[i] = item;
+			items.add(item);
 		}
-		
-		Customer customer = new Customer(totalEntered, startTime, 0, items);
+
+		Customer customer = new Customer(totalEntered, System.currentTimeMillis() - startTime, items);
 
 		// Check if secondary queue is open, and enter which one has less customers
 		// queuing. Also check if each queue has 5 or more people. If so, customer has a
@@ -145,7 +147,7 @@ public class Process {
 		}
 	}
 
-	private void processCustomer() {
+	private void determineCustomer() {
 
 		int option = 1;
 
@@ -160,34 +162,57 @@ public class Process {
 				option = in.nextInt();
 
 				if (option == 1) {
-					processPrimaryCustomer();
+					processCustomer(option);
 				} else if (option == 2) {
-					processSecondaryCustomer();
+					processCustomer(option);
 				} else {
 					System.out.println("Please enter a valid selection.");
-					processCustomer();
+					determineCustomer();
 				}
 			} catch (InputMismatchException ime) {
 				System.out.println("Please enter a valid selection.");
 				in.next();
-				processCustomer();
+				determineCustomer();
 			}
 		} else if (!primary.isEmpty() && secondary.isEmpty()) {
-			processPrimaryCustomer();
+			processCustomer(1);
 		} else if (primary.isEmpty() && !secondary.isEmpty()) {
-			processSecondaryCustomer();
+			processCustomer(2);
 		} else {
 			System.out.println("No customers to process.");
 		}
 
 	}
 
-	private void processPrimaryCustomer() {
+	private void processCustomer(int server) {
 
-	}
+		Customer customer = primary.peek();
 
-	private void processSecondaryCustomer() {
-
+		// Primary
+		if (server == 1) {
+			customer = primary.remove();
+			primary.incServed();
+		}
+		// Secondary
+		else if (server == 2) {
+			customer = secondary.remove();
+			secondary.incServed();
+		}
+		customer.setStartServeTime(System.currentTimeMillis() - startTime);
+		customer.setWaitTime(customer.getArriveTime() - customer.getStartServeTime());
+		customer.getItems().forEach(item -> {
+			try {
+				System.out.println("Processing item " + item.getId() + ", " + item.getProcessTime() + " seconds.");
+				
+				// Simulates "processing" each item for its process time
+				TimeUnit.MILLISECONDS.sleep((long) (item.getProcessTime() * 1000));
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();;
+			}
+		});
+		
+		totalServed++;
+		System.out.println("Customer " + customer.getId() + " served.");
 	}
 
 	private void calculateQHat() {

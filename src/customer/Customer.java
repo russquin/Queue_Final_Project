@@ -1,24 +1,30 @@
 package customer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Customer {
 	
 	private int id;
 	private double arriveTime;
+	private double waitTime;
 	private double startServeTime;
-	private Item[] items;
+	private double serveTime;
+	private List<Item> items;
 	
 	public Customer() {
 		id = 0;
 		arriveTime = 0.0;
+		waitTime = 0.0;
 		startServeTime = 0.0;
-		items = new Item[15];
+		serveTime = 0.0;
+		items = new ArrayList<>();
 	}
 	
-	public Customer(int id, double arriveTime, double startServeTime, Item[] items) {
+	public Customer(int id, double arriveTime, List<Item> items) {
 		super();
 		this.id = id;
 		this.arriveTime = arriveTime;
-		this.startServeTime = startServeTime;
 		this.items = items;
 	}
 	
@@ -38,6 +44,14 @@ public class Customer {
 		return arriveTime;
 	}
 	
+	public void setWaitTime(double waitTime) {
+		this.waitTime = waitTime;
+	}
+	
+	public double getWaitTime() {
+		return waitTime;
+	}
+	
 	public void setStartServeTime(double startServeTime) {
 		this.startServeTime = startServeTime;
 	}
@@ -46,11 +60,19 @@ public class Customer {
 		return startServeTime;
 	}
 	
-	public void setItems(Item[] items) {
+	public void setServeTime(double serveTime) {
+		this.serveTime = serveTime;
+	}
+	
+	public double getServeTime() {
+		return serveTime;
+	}
+	
+	public void setItems(List<Item> items) {
 		this.items = items;
 	}
 	
-	public Item[] getItems() {
+	public List<Item> getItems() {
 		return items;
 	}
 	
