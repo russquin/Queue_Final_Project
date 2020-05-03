@@ -6,11 +6,12 @@ import java.util.Random;
 public class Rng {
 
     Random r = new Random();
-    double lambda = 5.7;
+    double plambda = 5.7; //poisson lambda
+    double ulambda = 3.55; //Uniform lambda
 
-
+    //poisson random number generator distribution
     public double getPoisson(){
-        double x = Math.exp(-lambda);
+        double x = Math.exp(-plambda);
         int y = 0;
         double t = 1.0;
         while(t > x){
@@ -19,12 +20,19 @@ public class Rng {
         }
         return y-1;
     }
-
-    public void setLambda(double lambda){
-        this.lambda = lambda;
+    //uniform random number generator distribution
+    public double getUniform(){
+        double t = r.nextDouble();
+        return ulambda*t;
     }
-
-    public double getLambda(){
-        return lambda;
+    //Poisson setters/getters
+    public void setPlambda(double plambda){
+        this.plambda = plambda;
     }
-}
+    public double getPlambda(){
+        return plambda;
+    }
+    //Uniform setters/getters
+    public void setUlambda(double ulambda){ this.ulambda = ulambda; }
+    public double getUlambda(){ return ulambda; }
+    }

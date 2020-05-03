@@ -10,6 +10,7 @@ public class Customer {
 	private double waitTime;
 	private double startServeTime;
 	private double serveTime;
+	private double customerTT; //Customer total time
 	private List<Item> items;
 	
 	public Customer() {
@@ -70,6 +71,12 @@ public class Customer {
 	
 	public void setItems(List<Item> items) {
 		this.items = items;
+	}
+
+	public double getCustomerTT(){
+		this.customerTT = (this.waitTime + this.serveTime) - this.arriveTime;
+		return this.customerTT;
+
 	}
 	
 	public List<Item> getItems() {

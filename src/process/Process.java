@@ -32,6 +32,11 @@ public class Process {
 	int totalServed = 0;
 
 	long startTime = 0;
+	long endTime = 0;
+	long totalTime = 0;
+
+	ArrayList<Double> customerTTList = new ArrayList<>();
+	ArrayList<Double> customerServeTime = new ArrayList<>();
 
 	Server<Customer> primary = new Server<>();
 	Server<Customer> secondary = new Server<>(false);
@@ -89,9 +94,11 @@ public class Process {
 						}
 					}
 				} else if (option == 5) {
-					calculateQHat();
+					totalTime = System.currentTimeMillis() - startTime;
+					calculateQHat(totalTime);
 				} else if (option == 6) {
-					calculateUHat();
+					totalTime = System.currentTimeMillis() - startTime;
+					calculateUHat(totalTime);
 				} else if (option == 7) {
 					calculateBofT();
 				} else if (option == 8) {
@@ -100,6 +107,11 @@ public class Process {
 					viewSecondaryQueue();
 				} else if (option == 0) {
 					System.out.println("Thanks for using our queue simulator.");
+					//calculate end of simulation stats
+					endTime = System.currentTimeMillis() - startTime;
+					calculateUHat(endTime);
+					calculateQHat(endTime);
+					calculateBofT();
 				} else {
 					System.out.println("Please enter a valid selection.");
 				}
@@ -361,6 +373,9 @@ public class Process {
 			// customer.getStartServeTime());
 
 			totalServed++;
+			customerTTList.add(customer.getCustomerTT());
+			customerServeTime.add(customer.getServeTime());
+
 			System.out.println("\nCustomer " + customer.getId() + " served. \nTotal wait time: "
 					+ df.format(customer.getWaitTime()) + " seconds. " + "\nTotal serve time: "
 					+ df.format(customer.getServeTime()) + " seconds.");
@@ -382,15 +397,37 @@ public class Process {
 		}
 	}
 
-	private void calculateQHat() {
+	private double calculateQHat(long time) {
+		double tTime = (double) time;
+		double tServeTime = 0.0;
+		double multiplier = 0.0;
+		for(double i : customerServeTime){
+			tServeTime += i*multiplier;
+			multiplier++;
+		}
+		return (tServeTime/tTime);
+
 
 	}
 
-	private void calculateUHat() {
+	private double calculateUHat(long time) {
+		double tTime = (double) time;
+		double addedTime=0.0;
+		for(double i : customerTTList){
+			addedTime += i;
+		}
+
+		return (addedTime/tTime);
 
 	}
 
-	private void calculateBofT() {
+	private double calculateBofT() {
+		double addedTime = 0.0;
+		for(double i : customerTTList){
+			addedTime += 1;
+		}
+
+		return addedTime;
 
 	}
 
