@@ -32,8 +32,8 @@ public class Process {
 	int totalServed = 0;
 
 	long startTime = 0;
-	long endTime = 0;
-	long totalTime = 0;
+	double endTime = 0;
+	double totalTime = 0;
 
 	ArrayList<Double> customerTTList = new ArrayList<>();
 	ArrayList<Double> customerServeTime = new ArrayList<>();
@@ -56,8 +56,8 @@ public class Process {
 			System.out.println("\n--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--\n"
 					+ "Please select an option: \n\n1. Create a Customer \n"
 					+ "2. Process a Customer \n3. Open secondary server \n4. Close secondary "
-					+ "server \n5. Find q-hat \n6. Find u-hat \n7. Find B(t) \n8. View primary "
-					+ "queue \n9. View secondary queue \n0. Quit");
+					+ "\n5. View primary queue \\n6. View secondary queue \\n7.Queue Analysis \\n8. Quit with Analysis Report "
+					+ "\n0. Quit");
 			try {
 				option = in.nextInt();
 
@@ -94,24 +94,21 @@ public class Process {
 						}
 					}
 				} else if (option == 5) {
-					totalTime = System.currentTimeMillis() - startTime;
-					calculateQHat(totalTime);
-				} else if (option == 6) {
-					totalTime = System.currentTimeMillis() - startTime;
-					calculateUHat(totalTime);
-				} else if (option == 7) {
-					calculateBofT();
-				} else if (option == 8) {
 					viewPrimaryQueue();
-				} else if (option == 9) {
+				} else if (option == 6) {
 					viewSecondaryQueue();
-				} else if (option == 0) {
+				} else if (option == 7) {
+					viewStatsMenu();
+				} else if (option == 8){
 					System.out.println("Thanks for using our queue simulator.");
 					//calculate end of simulation stats
-					endTime = System.currentTimeMillis() - startTime;
-					calculateUHat(endTime);
-					calculateQHat(endTime);
-					calculateBofT();
+					endTime = ((System.currentTimeMillis() - startTime) / 1000.0);
+					System.out.println("U-hat = " + calculateUHat(endTime));
+					System.out.println("Q-hat = " + calculateQHat(endTime));
+					System.out.println("B(t) = "+ calculateBofT());
+
+				} else if (option == 0) {
+					System.out.println("Thanks for using our queue simulator.");
 				} else {
 					System.out.println("Please enter a valid selection.");
 				}
@@ -397,27 +394,25 @@ public class Process {
 		}
 	}
 
-	private double calculateQHat(long time) {
-		double tTime = (double) time;
+	private double calculateQHat(double time) {
 		double tServeTime = 0.0;
 		double multiplier = 0.0;
 		for(double i : customerServeTime){
 			tServeTime += i*multiplier;
 			multiplier++;
 		}
-		return (tServeTime/tTime);
+		return (tServeTime/time);
 
 
 	}
 
-	private double calculateUHat(long time) {
-		double tTime = (double) time;
+	private double calculateUHat(double time) {
 		double addedTime=0.0;
 		for(double i : customerTTList){
 			addedTime += i;
 		}
 
-		return (addedTime/tTime);
+		return (addedTime/time);
 
 	}
 
@@ -441,4 +436,37 @@ public class Process {
 				+ secondary.getServed() + "\n\n" + secondary.toString());
 	}
 
+	private void viewStatsMenu() {
+		Scanner sec = new Scanner(System.in);
+		int opt = 0;
+		while (opt != 4) {
+			checkJockey();
+			checkReneg();
+
+			System.out.println("\n--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--\n"
+					+ "Please select an option: \n\n1. Calculate current Qhat \n"
+					+ "2. Calculate current Uhat \n3. Calculate current b(t)  \n4. back ");
+			try {
+				opt = sec.nextInt();
+
+				if (opt == 1) {
+					totalTime = ((System.currentTimeMillis() - startTime) / 1000.0);
+					System.out.println("Q-hat = " + calculateQHat(totalTime));
+				} else if (opt == 2) {
+					totalTime = ((System.currentTimeMillis() - startTime) / 1000.0);
+					System.out.println("U-hat = " + calculateUHat(totalTime));
+				} else if (opt == 3) {
+					System.out.println("B(t) = " + calculateBofT());
+				} else if (opt == 4) {
+					return;
+				} else {
+					System.out.println("Please enter a valid selection.");
+				}
+			} catch (InputMismatchException e) {
+				System.out.println("Please enter a valid selection.");
+				sec.next();
+			}
+		}
+		return;
+	}
 }
