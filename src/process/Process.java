@@ -426,6 +426,34 @@ public class Process {
 
 	}
 
+	private void changeCustomerVariation(){
+		Scanner ccv = new Scanner(System.in);
+		double num = 0.0;
+		System.out.println("The higher the number the more variation");
+		System.out.print("Enter any decimal 0.0-15.0");
+		num = ccv.nextDouble();
+		if(num < 0.0 || num > 15.0){
+			System.out.println("Invalid number variation unchanged");
+		}else {
+			rand.setPlambda(num);
+		}
+		return;
+	}
+
+	private void changeCheckoutVariation(){
+		Scanner ccv = new Scanner(System.in);
+		double num = 0.0;
+		System.out.println("The higher the number the more variation");
+		System.out.print("Enter any decimal 0.0-15.0");
+		num = ccv.nextDouble();
+		if(num < 0.0 || num > 15.0){
+			System.out.println("Invalid number variation unchanged");
+		}else {
+			rand.setUlambda(num);
+		}
+		return;
+	}
+
 	private void viewPrimaryQueue() {
 		System.out.println("Primary queue:\n  Customers entered: " + primary.getEntered() + "\n  Customers served: "
 				+ primary.getServed() + "\n\n" + primary.toString());
@@ -445,7 +473,8 @@ public class Process {
 
 			System.out.println("\n--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--\n"
 					+ "Please select an option: \n\n1. Calculate current Qhat \n"
-					+ "2. Calculate current Uhat \n3. Calculate current b(t)  \n4. back ");
+					+ "2. Calculate current Uhat \n3. Calculate current b(t)  \n4. Change variation on Customer items "
+					+ " \n5. Change variation on checkout time \n6. back" );
 			try {
 				opt = sec.nextInt();
 
@@ -458,8 +487,10 @@ public class Process {
 				} else if (opt == 3) {
 					System.out.println("B(t) = " + calculateBofT());
 				} else if (opt == 4) {
-					return;
-				} else {
+					changeCustomerVariation();
+				} else if (opt == 5) {
+					changeCheckoutVariation();
+				}else{
 					System.out.println("Please enter a valid selection.");
 				}
 			} catch (InputMismatchException e) {
