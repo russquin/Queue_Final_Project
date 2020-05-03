@@ -13,7 +13,7 @@ public class Main {
 
 		ArrayList<Double> a = new ArrayList<>();
 		for (int i = 0; i < 200; i++) {
-			a.add(r.getUniform());
+			a.add(r.getPoisson());
 		}
 		Collections.sort(a);
 		System.out.println(a);

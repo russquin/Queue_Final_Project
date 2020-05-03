@@ -429,7 +429,7 @@ public class Process {
 	private void changeCustomerVariation(){
 		Scanner ccv = new Scanner(System.in);
 		double num = 0.0;
-		System.out.println("The higher the number the more variation");
+		System.out.println("The higher the number the more items on average customers will have");
 		System.out.print("Enter any decimal 0.0-15.0");
 		num = ccv.nextDouble();
 		if(num < 0.0 || num > 15.0){
@@ -443,7 +443,7 @@ public class Process {
 	private void changeCheckoutVariation(){
 		Scanner ccv = new Scanner(System.in);
 		double num = 0.0;
-		System.out.println("The higher the number the more variation");
+		System.out.println("The higher the number the more time on average itll take to be served");
 		System.out.print("Enter any decimal 0.0-15.0");
 		num = ccv.nextDouble();
 		if(num < 0.0 || num > 15.0){
@@ -473,8 +473,8 @@ public class Process {
 
 			System.out.println("\n--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--\n"
 					+ "Please select an option: \n\n1. Calculate current Qhat \n"
-					+ "2. Calculate current Uhat \n3. Calculate current b(t)  \n4. Change variation on Customer items "
-					+ " \n5. Change variation on checkout time \n6. back" );
+					+ "2. Calculate current Uhat \n3. Calculate current b(t)  \n4. Change the average of Customer items "
+					+ " \n5. Change the average on checkout time \n6. back" );
 			try {
 				opt = sec.nextInt();
 
