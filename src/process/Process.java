@@ -490,6 +490,8 @@ public class Process {
 					changeCustomerVariation();
 				} else if (opt == 5) {
 					changeCheckoutVariation();
+				}else if (opt == 6) {
+					return;
 				}else{
 					System.out.println("Please enter a valid selection.");
 				}
