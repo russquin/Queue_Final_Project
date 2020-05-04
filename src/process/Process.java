@@ -50,15 +50,15 @@ public class Process {
 
 		int option = 10;
 
-		while (option != 0) {
+		while (option != 0 || option !=8) {
 			checkJockey();
 			checkReneg();
 
 			System.out.println("\n--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--\n"
 					+ "Please select an option: \n\n1. Create a Customer \n"
 					+ "2. Process a Customer \n3. Open secondary server \n4. Close secondary "
-					+ "\n5. View primary queue \n6. View secondary queue \n7. Queue Analysis \n8. Quit with Analysis Report "
-					+ "\n0. Quit");
+					+ "\n5. View primary queue \n6. View secondary queue \n7. Queue Analysis \n8. Reset Sim "
+					+ " \n9. Quit with Analysis report \n0. Quit");
 			try {
 				option = in.nextInt();
 
@@ -98,16 +98,29 @@ public class Process {
 					viewSecondaryQueue();
 				} else if (option == 7) {
 					viewStatsMenu();
-				} else if (option == 8) {
+				} else if (option == 8){
+					customerServeTime.clear();
+					customerTTList.clear();
+					totalEntered = 0;
+					totalServed = 0;
+					secondary.closeServer();
+					startTime = System.currentTimeMillis();
+					rand.setUlambda(2.0);
+					rand.setPlambda(5.65);
+					System.out.println("Settings and simulation reset");
+
+				} else if (option == 9) {
 					System.out.println("Thanks for using our queue simulator.");
 					// calculate end of simulation stats
 					endTime = ((System.currentTimeMillis() - startTime) / 1000.0);
 					System.out.println("U-hat = " + calculateUHat(endTime));
 					System.out.println("Q-hat = " + calculateQHat(endTime));
 					System.out.println("B(t) = " + calculateBofT());
+					System.exit(0);
 
 				} else if (option == 0) {
 					System.out.println("Thanks for using our queue simulator.");
+					System.exit(0);
 				} else {
 					System.out.println("Please enter a valid selection.");
 				}
@@ -371,7 +384,7 @@ public class Process {
 			customer.setServeTime(((System.currentTimeMillis() - startTime) / 1000.0) - customer.getStartServeTime());
 
 			totalServed++;
-			customerTTList.add(customer.getCustomerTT());
+			customerTTList.add(customer.getServeTime() + customer.getWaitTime());
 			customerServeTime.add(customer.getServeTime());
 
 			System.out.println("\nCustomer " + customer.getId() + " served. \nTotal wait time: "
@@ -418,7 +431,7 @@ public class Process {
 	private double calculateBofT() {
 		double addedTime = 0.0;
 		for (double i : customerTTList) {
-			addedTime += 1;
+			addedTime += i;
 		}
 
 		return addedTime;
@@ -485,9 +498,11 @@ public class Process {
 
 				if (opt == 1) {
 					totalTime = ((System.currentTimeMillis() - startTime) / 1000.0);
+					//System.out.println(customerServeTime);
 					System.out.println("Q-hat = " + calculateQHat(totalTime));
 				} else if (opt == 2) {
 					totalTime = ((System.currentTimeMillis() - startTime) / 1000.0);
+					//System.out.println(customerTTList);
 					System.out.println("U-hat = " + calculateUHat(totalTime));
 				} else if (opt == 3) {
 					System.out.println("B(t) = " + calculateBofT());
