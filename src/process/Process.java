@@ -179,22 +179,30 @@ public class Process {
 	// reneg.
 	private void checkReneg() {
 		rand2.setUlambda(100.0);
-		for (int i = 0; i < primary.size(); i++) {
-			double num = rand2.getUniform() + .1;
-			if (num < 1.0) {
-				Customer customer = primary.removeAtPosition(i);
-				System.out.println("Customer " + customer.getId() + " has decided to reneg from the primary queue.");
-			}
-		}
-		if (secondary.isOpen()) {
-			for (int i = 0; i < secondary.size(); i++) {
+		try (BufferedWriter bw1 = new BufferedWriter(new FileWriter(primaryFile, true));
+				BufferedWriter bw2 = new BufferedWriter(new FileWriter(secondaryFile, true))) {
+			for (int i = 0; i < primary.size(); i++) {
 				double num = rand2.getUniform() + .1;
 				if (num < 1.0) {
-					Customer customer = secondary.removeAtPosition(i);
-					System.out.println(
-							"Customer " + customer.getId() + " has decided to reneg from the secondary queue.");
+					Customer customer = primary.removeAtPosition(i);
+					System.out
+							.println("Customer " + customer.getId() + " has decided to reneg from the primary queue.");
+					bw1.write("Customer " + customer.getId() + " had decided to reneg from the primary queue.");
 				}
 			}
+			if (secondary.isOpen()) {
+				for (int i = 0; i < secondary.size(); i++) {
+					double num = rand2.getUniform() + .1;
+					if (num < 1.0) {
+						Customer customer = secondary.removeAtPosition(i);
+						System.out.println(
+								"Customer " + customer.getId() + " has decided to reneg from the secondary queue.");
+						bw2.write("Customer " + customer.getId() + " had decided to reneg from the secondary queue.");
+					}
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -359,9 +367,9 @@ public class Process {
 					Thread.currentThread().interrupt();
 				}
 			});
-			
+
 			customer.setServeTime(((System.currentTimeMillis() - startTime) / 1000.0) - customer.getStartServeTime());
-			
+
 			totalServed++;
 			customerTTList.add(customer.getCustomerTT());
 			customerServeTime.add(customer.getServeTime());
@@ -437,8 +445,9 @@ public class Process {
 	private void changeCheckoutVariation() {
 		Scanner ccv = new Scanner(System.in);
 		double num = 0.0;
-		System.out.println("The higher the number the more time on average itll take to be served. This will produced a range of about"
-				+ " 0.1 to the value entered. Default is 2.0.");
+		System.out.println(
+				"The higher the number the more time on average itll take to be served. This will produced a range of about"
+						+ " 0.1 to the value entered. Default is 2.0.");
 		System.out.println("Enter any decimal 0.0-15.0");
 		num = ccv.nextDouble();
 		if (num < 0.0 || num > 15.0) {
