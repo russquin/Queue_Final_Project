@@ -474,12 +474,14 @@ public class Process {
 
 	private void viewPrimaryQueue() {
 		System.out.println("Primary queue:\n  Customers entered: " + primary.getEntered() + "\n  Customers served: "
-				+ primary.getServed() + "\n\n" + primary.toString());
+				+ primary.getServed() + "\n  Balked: " + primary.getBalked() + " \n  Jockeyed: " + primary.getJockeyed()
+				+ "\n  Reneged: " + primary.getReneged() + "\n\n" + primary.toString());
 	}
 
 	private void viewSecondaryQueue() {
 		System.out.println("Secondary queue:\n  Customers entered: " + secondary.getEntered() + "\n  Customers served: "
-				+ secondary.getServed() + "\n\n" + secondary.toString());
+				+ secondary.getServed() + "\n  Balked: " + secondary.getBalked() + "\n  Jockeyed: " + secondary.getJockeyed()
+				+ "\n  Reneged: " + secondary.getReneged() + "\n\n" + secondary.toString());
 	}
 
 	private void viewStatsMenu() {
