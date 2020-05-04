@@ -6,9 +6,9 @@ import java.util.Random;
 public class Rng {
 
     Random r = new Random();
-    double plambda = 14.55; //poisson lambda
-    double ulambda = 3.55; //Uniform lambda
-
+    double plambda = 5.65; //poisson lambda
+    double ulambda = 2.0; //Uniform lambda
+    
     //poisson random number generator distribution
     public double getPoisson(){
         double x = Math.exp(-plambda);

@@ -21,6 +21,7 @@ public class Process {
 
 	Random randBool = new Random();
 	Rng rand = new Rng();
+	Rng rand2 = new Rng();
 
 	DecimalFormat df = new DecimalFormat(".##");
 	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM/dd HH:mm:ss");
@@ -56,7 +57,7 @@ public class Process {
 			System.out.println("\n--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--\n"
 					+ "Please select an option: \n\n1. Create a Customer \n"
 					+ "2. Process a Customer \n3. Open secondary server \n4. Close secondary "
-					+ "\n5. View primary queue \\n6. View secondary queue \\n7.Queue Analysis \\n8. Quit with Analysis Report "
+					+ "\n5. View primary queue \n6. View secondary queue \n7. Queue Analysis \n8. Quit with Analysis Report "
 					+ "\n0. Quit");
 			try {
 				option = in.nextInt();
@@ -75,7 +76,6 @@ public class Process {
 							bw2.write(dtf.format(LocalDateTime.now()) + " - Secondary server is now open.");
 							bw2.newLine();
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
@@ -89,7 +89,6 @@ public class Process {
 							bw2.write(dtf.format(LocalDateTime.now()) + " - Secondary server is now closed.");
 							bw2.newLine();
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
@@ -99,13 +98,13 @@ public class Process {
 					viewSecondaryQueue();
 				} else if (option == 7) {
 					viewStatsMenu();
-				} else if (option == 8){
+				} else if (option == 8) {
 					System.out.println("Thanks for using our queue simulator.");
-					//calculate end of simulation stats
+					// calculate end of simulation stats
 					endTime = ((System.currentTimeMillis() - startTime) / 1000.0);
 					System.out.println("U-hat = " + calculateUHat(endTime));
 					System.out.println("Q-hat = " + calculateQHat(endTime));
-					System.out.println("B(t) = "+ calculateBofT());
+					System.out.println("B(t) = " + calculateBofT());
 
 				} else if (option == 0) {
 					System.out.println("Thanks for using our queue simulator.");
@@ -169,29 +168,28 @@ public class Process {
 					}
 				}
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 	}
 
-	// TODO: generate random numbers via custom code
 	// A customer has a 1% chance of reneging, or choosing to leave a queue, after
 	// every action. This percentage is so low because as more customers enter the
 	// queue, the greater the chance that one of them will randomly be selected to
 	// reneg.
 	private void checkReneg() {
+		rand2.setUlambda(100.0);
 		for (int i = 0; i < primary.size(); i++) {
-			int num = randBool.nextInt(100);
-			if (num < 1) {
+			double num = rand2.getUniform() + .1;
+			if (num < 1.0) {
 				Customer customer = primary.removeAtPosition(i);
 				System.out.println("Customer " + customer.getId() + " has decided to reneg from the primary queue.");
 			}
 		}
 		if (secondary.isOpen()) {
 			for (int i = 0; i < secondary.size(); i++) {
-				int num = randBool.nextInt(100);
-				if (num < 1) {
+				double num = rand2.getUniform() + .1;
+				if (num < 1.0) {
 					Customer customer = secondary.removeAtPosition(i);
 					System.out.println(
 							"Customer " + customer.getId() + " has decided to reneg from the secondary queue.");
@@ -201,17 +199,15 @@ public class Process {
 	}
 
 	private void createCustomer() {
-
-		// TODO: generate random numbers via custom code
-
+		// Give customer a random number of items, each with a random time to
+		// process, based on Poisson and Uniform RNG. Plambda of 5.65 gives a range of
+		// about 0 - 14. Ulambda of 2.0 give range of about .1 - 2.0
 		ArrayList<Item> items = new ArrayList<>();
 		int numItems = (int) rand.getPoisson() + 1;
 
-		// Give customer a random number of items(1-15), each with a random time to
-		// process(.2-2.0 seconds)
 		for (int i = 0; i < numItems; i++) {
 			Item item = new Item(i + 1, 0);
-			item.setProcessTime(.2 + (2.0 - .2) * randBool.nextDouble());
+			item.setProcessTime(rand.getUniform() + .1);
 			items.add(item);
 		}
 
@@ -282,7 +278,6 @@ public class Process {
 				}
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -364,11 +359,9 @@ public class Process {
 					Thread.currentThread().interrupt();
 				}
 			});
-
-			// TODO: Fix timing bug for serveTime
-			// customer.setServeTime(System.currentTimeMillis() -
-			// customer.getStartServeTime());
-
+			
+			customer.setServeTime(((System.currentTimeMillis() - startTime) / 1000.0) - customer.getStartServeTime());
+			
 			totalServed++;
 			customerTTList.add(customer.getCustomerTT());
 			customerServeTime.add(customer.getServeTime());
@@ -389,7 +382,6 @@ public class Process {
 				bw2.newLine();
 			}
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 	}
@@ -397,28 +389,27 @@ public class Process {
 	private double calculateQHat(double time) {
 		double tServeTime = 0.0;
 		double multiplier = 0.0;
-		for(double i : customerServeTime){
-			tServeTime += i*multiplier;
+		for (double i : customerServeTime) {
+			tServeTime += i * multiplier;
 			multiplier++;
 		}
-		return (tServeTime/time);
-
+		return (tServeTime / time);
 
 	}
 
 	private double calculateUHat(double time) {
-		double addedTime=0.0;
-		for(double i : customerTTList){
+		double addedTime = 0.0;
+		for (double i : customerTTList) {
 			addedTime += i;
 		}
 
-		return (addedTime/time);
+		return (addedTime / time);
 
 	}
 
 	private double calculateBofT() {
 		double addedTime = 0.0;
-		for(double i : customerTTList){
+		for (double i : customerTTList) {
 			addedTime += 1;
 		}
 
@@ -426,30 +417,35 @@ public class Process {
 
 	}
 
-	private void changeCustomerVariation(){
+	private void changeCustomerVariation() {
 		Scanner ccv = new Scanner(System.in);
 		double num = 0.0;
-		System.out.println("The higher the number the more items on average customers will have");
-		System.out.print("Enter any decimal 0.0-15.0");
+		System.out.println(
+				"The higher the number the more items on average customers will have. This will produce a range of about "
+						+ "a half to one and a half of the entered value. Default is 5.65, which produces 1-15 items.");
+		System.out.println("Enter any decimal 0.0-15.0");
 		num = ccv.nextDouble();
-		if(num < 0.0 || num > 15.0){
+		if (num < 0.0 || num > 15.0) {
 			System.out.println("Invalid number variation unchanged");
-		}else {
+		} else {
 			rand.setPlambda(num);
+			System.out.println("New item range set. Note: This will only effect newly generated customers.");
 		}
 		return;
 	}
 
-	private void changeCheckoutVariation(){
+	private void changeCheckoutVariation() {
 		Scanner ccv = new Scanner(System.in);
 		double num = 0.0;
-		System.out.println("The higher the number the more time on average itll take to be served");
-		System.out.print("Enter any decimal 0.0-15.0");
+		System.out.println("The higher the number the more time on average itll take to be served. This will produced a range of about"
+				+ " 0.1 to the value entered. Default is 2.0.");
+		System.out.println("Enter any decimal 0.0-15.0");
 		num = ccv.nextDouble();
-		if(num < 0.0 || num > 15.0){
+		if (num < 0.0 || num > 15.0) {
 			System.out.println("Invalid number variation unchanged");
-		}else {
+		} else {
 			rand.setUlambda(num);
+			System.out.println("New checkout range set. Note: This will only effect newly generated customers.");
 		}
 		return;
 	}
@@ -474,7 +470,7 @@ public class Process {
 			System.out.println("\n--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--\n"
 					+ "Please select an option: \n\n1. Calculate current Qhat \n"
 					+ "2. Calculate current Uhat \n3. Calculate current b(t)  \n4. Change the average of Customer items "
-					+ " \n5. Change the average on checkout time \n6. back" );
+					+ " \n5. Change the average on checkout time \n6. back");
 			try {
 				opt = sec.nextInt();
 
@@ -490,9 +486,9 @@ public class Process {
 					changeCustomerVariation();
 				} else if (opt == 5) {
 					changeCheckoutVariation();
-				}else if (opt == 6) {
+				} else if (opt == 6) {
 					return;
-				}else{
+				} else {
 					System.out.println("Please enter a valid selection.");
 				}
 			} catch (InputMismatchException e) {
