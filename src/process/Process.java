@@ -36,8 +36,11 @@ public class Process {
 	double endTime = 0;
 	double totalTime = 0;
 
-	ArrayList<Double> customerTTList = new ArrayList<>();
-	ArrayList<Double> customerServeTime = new ArrayList<>();
+	ArrayList<Double> customerTTListPrimary = new ArrayList<>();
+	ArrayList<Double> customerServeTimePrimary = new ArrayList<>();
+	ArrayList<Double> customerTTListSecondary = new ArrayList<>();
+	ArrayList<Double> customerServeTimeSecondary = new ArrayList<>();
+
 
 	Server<Customer> primary = new Server<>();
 	Server<Customer> secondary = new Server<>(false);
@@ -99,8 +102,10 @@ public class Process {
 				} else if (option == 7) {
 					primary = new Server<>();
 					secondary = new Server<>(false);
-					customerServeTime.clear();
-					customerTTList.clear();
+					customerServeTimePrimary.clear();
+					customerTTListPrimary.clear();
+					customerServeTimeSecondary.clear();
+					customerTTListSecondary.clear();
 					totalEntered = 0;
 					totalServed = 0;
 					secondary.closeServer();
@@ -112,8 +117,10 @@ public class Process {
 					System.out.println("Thanks for using our queue simulator.");
 					// calculate end of simulation stats
 					endTime = ((System.currentTimeMillis() - startTime) / 1000.0);
-					System.out.println("U-hat = " + calculateUHat(endTime));
-					System.out.println("Q-hat = " + calculateQHat(endTime));
+					System.out.println("U-hat primary = " + calculateUHatPrimary(endTime));
+					System.out.println("U-hat secondary = " + calculateUHatSecondary(endTime));
+					System.out.println("Q-hat primary = " + calculateQHatPrimary(endTime));
+					System.out.println("Q-hat secondary = " + calculateQHatSecondary(endTime));
 					calculateBofT();
 					System.exit(0);
 				} else if (option == 0) {
@@ -386,9 +393,13 @@ public class Process {
 			customer.setServeTime(((System.currentTimeMillis() - startTime) / 1000.0) - customer.getStartServeTime());
 
 			totalServed++;
-			customerTTList.add(customer.getServeTime() + customer.getWaitTime());
-			customerServeTime.add(customer.getServeTime());
-
+			if (server == 1) {
+				customerTTListPrimary.add(customer.getServeTime() + customer.getWaitTime());
+				customerServeTimePrimary.add(customer.getServeTime());
+			}else if(server == 2){
+				customerTTListSecondary.add(customer.getServeTime() + customer.getWaitTime());
+				customerServeTimeSecondary.add(customer.getServeTime());
+			}
 			System.out.println("\nCustomer " + customer.getId() + " served. \nTotal wait time: "
 					+ df.format(customer.getWaitTime()) + " seconds. " + "\nTotal serve time: "
 					+ df.format(customer.getServeTime()) + " seconds.");
@@ -409,10 +420,10 @@ public class Process {
 		}
 	}
 
-	private double calculateQHat(double time) {
+	private double calculateQHatPrimary(double time) {
 		double tServeTime = 0.0;
 		double multiplier = 0.0;
-		for (double i : customerServeTime) {
+		for (double i : customerServeTimePrimary) {
 			tServeTime += i * multiplier;
 			multiplier++;
 		}
@@ -420,9 +431,30 @@ public class Process {
 
 	}
 
-	private double calculateUHat(double time) {
+	private double calculateUHatPrimary(double time) {
 		double addedTime = 0.0;
-		for (double i : customerTTList) {
+		for (double i : customerTTListPrimary) {
+			addedTime += i;
+		}
+
+		return (addedTime / time);
+
+	}
+
+	private double calculateQHatSecondary(double time) {
+		double tServeTime = 0.0;
+		double multiplier = 0.0;
+		for (double i : customerServeTimeSecondary) {
+			tServeTime += i * multiplier;
+			multiplier++;
+		}
+		return (tServeTime / time);
+
+	}
+
+	private double calculateUHatSecondary(double time) {
+		double addedTime = 0.0;
+		for (double i : customerTTListSecondary) {
 			addedTime += i;
 		}
 
@@ -506,11 +538,14 @@ public class Process {
 				if (opt == 1) {
 					totalTime = ((System.currentTimeMillis() - startTime) / 1000.0);
 					// System.out.println(customerServeTime);
-					System.out.println("Q-hat = " + calculateQHat(totalTime));
+					System.out.println("Q-hat primary = " + calculateQHatPrimary(totalTime));
+					System.out.println("Q-hat secondary = " + calculateQHatSecondary(totalTime));
 				} else if (opt == 2) {
 					totalTime = ((System.currentTimeMillis() - startTime) / 1000.0);
 					// System.out.println(customerTTList);
-					System.out.println("U-hat = " + calculateUHat(totalTime));
+					System.out.println("U-hat primary = " + calculateUHatPrimary(totalTime));
+					System.out.println("U-hat secondary = " + calculateUHatSecondary(totalTime));
+
 				} else if (opt == 3) {
 					calculateBofT();
 				} else if (opt == 4) {
