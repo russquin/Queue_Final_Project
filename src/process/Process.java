@@ -115,7 +115,7 @@ public class Process {
 					endTime = ((System.currentTimeMillis() - startTime) / 1000.0);
 					System.out.println("U-hat = " + calculateUHat(endTime));
 					System.out.println("Q-hat = " + calculateQHat(endTime));
-					System.out.println("B(t) = " + calculateBofT());
+					calculateBofT();
 					System.exit(0);
 
 				} else if (option == 0) {
@@ -428,13 +428,18 @@ public class Process {
 
 	}
 
-	private double calculateBofT() {
-		double addedTime = 0.0;
-		for (double i : customerTTList) {
-			addedTime += i;
-		}
+	private void calculateBofT() {
+	if(!primary.isEmpty()){
+		System.out.println("B(t) of primary = 1");
+	}else {
+		System.out.println("B(t) of primary = 0");
+	}
 
-		return addedTime;
+	if(!secondary.isEmpty()){
+		System.out.println("B(t) of secondary = 1");
+	}else{
+		System.out.println("B(t) of secondary = 1");
+	}
 
 	}
 
@@ -505,7 +510,7 @@ public class Process {
 					//System.out.println(customerTTList);
 					System.out.println("U-hat = " + calculateUHat(totalTime));
 				} else if (opt == 3) {
-					System.out.println("B(t) = " + calculateBofT());
+					calculateBofT();
 				} else if (opt == 4) {
 					changeCustomerVariation();
 				} else if (opt == 5) {
