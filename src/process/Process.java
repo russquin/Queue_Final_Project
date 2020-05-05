@@ -50,15 +50,15 @@ public class Process {
 
 		int option = 10;
 
-		while (option != 0 || option !=8) {
+		while (option != 0 || option != 8) {
 			checkJockey();
 			checkReneg();
 
 			System.out.println("\n--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--\n"
 					+ "Please select an option: \n\n1. Create a Customer \n"
-					+ "2. Process a Customer \n3. Open secondary server \n4. Close secondary "
-					+ "\n5. View primary queue \n6. View secondary queue \n7. Queue Analysis \n8. Reset Sim "
-					+ " \n9. Quit with Analysis report \n0. Quit");
+					+ "2. Process a Customer \n3. Open secondary server \n4. Close secondary server"
+					+ "\n5. View servers \n6. Queue Analysis \n7. Reset Sim "
+					+ " \n8. Quit with Analysis report \n0. Quit");
 			try {
 				option = in.nextInt();
 
@@ -93,12 +93,12 @@ public class Process {
 						}
 					}
 				} else if (option == 5) {
-					viewPrimaryQueue();
+					 viewServers();
 				} else if (option == 6) {
-					viewSecondaryQueue();
-				} else if (option == 7) {
 					viewStatsMenu();
-				} else if (option == 8){
+				} else if (option == 7) {
+					primary = new Server<>();
+					secondary = new Server<>(false);
 					customerServeTime.clear();
 					customerTTList.clear();
 					totalEntered = 0;
@@ -108,8 +108,7 @@ public class Process {
 					rand.setUlambda(2.0);
 					rand.setPlambda(5.65);
 					System.out.println("Settings and simulation reset");
-
-				} else if (option == 9) {
+				} else if (option == 8) {
 					System.out.println("Thanks for using our queue simulator.");
 					// calculate end of simulation stats
 					endTime = ((System.currentTimeMillis() - startTime) / 1000.0);
@@ -117,7 +116,6 @@ public class Process {
 					System.out.println("Q-hat = " + calculateQHat(endTime));
 					calculateBofT();
 					System.exit(0);
-
 				} else if (option == 0) {
 					System.out.println("Thanks for using our queue simulator.");
 					System.exit(0);
@@ -143,6 +141,7 @@ public class Process {
 					if (i > secondary.size()) {
 						Customer customer = primary.removeAtPosition(i);
 						secondary.add(customer);
+						secondary.incEntered();
 						primary.incJockeyed();
 						System.out.println("Customer " + customer.getId() + " jockeyed from primary queue, position "
 								+ (i + 1) + " to secondary queue, position " + secondary.size());
@@ -165,6 +164,7 @@ public class Process {
 					if (i > primary.size()) {
 						Customer customer = secondary.removeAtPosition(i);
 						primary.add(customer);
+						primary.incEntered();
 						secondary.incJockeyed();
 						System.out.println("Customer " + customer.getId() + " jockeyed from secondary queue, position "
 								+ (i + 1) + " to primary queue, position " + primary.size());
@@ -198,6 +198,7 @@ public class Process {
 				double num = rand2.getUniform() + .1;
 				if (num < 1.0) {
 					Customer customer = primary.removeAtPosition(i);
+					primary.incReneged();
 					System.out
 							.println("Customer " + customer.getId() + " has decided to reneg from the primary queue.");
 					bw1.write("Customer " + customer.getId() + " had decided to reneg from the primary queue.");
@@ -208,6 +209,7 @@ public class Process {
 					double num = rand2.getUniform() + .1;
 					if (num < 1.0) {
 						Customer customer = secondary.removeAtPosition(i);
+						secondary.incReneged();
 						System.out.println(
 								"Customer " + customer.getId() + " has decided to reneg from the secondary queue.");
 						bw2.write("Customer " + customer.getId() + " had decided to reneg from the secondary queue.");
@@ -477,22 +479,22 @@ public class Process {
 		return;
 	}
 
-	private void viewPrimaryQueue() {
+	private void viewServers() {
 		System.out.println("Primary queue:\n  Customers entered: " + primary.getEntered() + "\n  Customers served: "
-				+ primary.getServed() + "\n\n" + primary.toString());
-	}
-
-	private void viewSecondaryQueue() {
-		System.out.println("Secondary queue:\n  Customers entered: " + secondary.getEntered() + "\n  Customers served: "
-				+ secondary.getServed() + "\n\n" + secondary.toString());
+				+ primary.getServed() + "\n  Balked: " + primary.getBalked() + " \n  Jockeyed: " + primary.getJockeyed()
+				+ "\n  Reneged: " + primary.getReneged() + "\n\n" + primary.toString());
+		System.out.println("\nSecondary queue:\n  Customers entered: " + secondary.getEntered()
+				+ "\n  Customers served: " + secondary.getServed() + "\n  Balked: " + secondary.getBalked()
+				+ "\n  Jockeyed: " + secondary.getJockeyed() + "\n  Reneged: " + secondary.getReneged() + "\n\n"
+				+ secondary.toString());
 	}
 
 	private void viewStatsMenu() {
 		Scanner sec = new Scanner(System.in);
 		int opt = 0;
 		while (opt != 4) {
-			checkJockey();
-			checkReneg();
+			// checkJockey();
+			// checkReneg();
 
 			System.out.println("\n--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--\n"
 					+ "Please select an option: \n\n1. Calculate current Qhat \n"
@@ -503,11 +505,11 @@ public class Process {
 
 				if (opt == 1) {
 					totalTime = ((System.currentTimeMillis() - startTime) / 1000.0);
-					//System.out.println(customerServeTime);
+					// System.out.println(customerServeTime);
 					System.out.println("Q-hat = " + calculateQHat(totalTime));
 				} else if (opt == 2) {
 					totalTime = ((System.currentTimeMillis() - startTime) / 1000.0);
-					//System.out.println(customerTTList);
+					// System.out.println(customerTTList);
 					System.out.println("U-hat = " + calculateUHat(totalTime));
 				} else if (opt == 3) {
 					calculateBofT();
